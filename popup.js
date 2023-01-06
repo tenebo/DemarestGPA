@@ -1,10 +1,6 @@
-// chrome.scripting.executeScript({
-//   files: ['./src/jquery.min.js']
-// });
-// chrome.storage.sync.set({ myVariable: valueOfVariable });
-
-chrome.tabs.query({ active: true }, function (tabs) {
+chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
   let tab = tabs[0];
+  if (tab.url?.startsWith("chrome://")) return undefined;
   chrome.scripting.executeScript(
     {
       target: { tabId: tab.id },
@@ -25,9 +21,6 @@ chrome.tabs.query({ active: true }, function (tabs) {
         );
       }
     );
-  //   chrome.tabs.executeScript(null, { file: "./src/jquery.min.js" }, function() {
-  //     chrome.tabs.executeScript(null, { file: "./src/content_script.js" });
-  // });
   });
 });
 

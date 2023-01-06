@@ -15,7 +15,8 @@
     {
       "matches": [
         "https://parents.montville.net/*",
-        "https://parents.genesisedu.com/*"
+        "https://parents.genesisedu.com/*",
+        "https://*.genesisedu.net/*"
       ],
       "js": [
         "./src/jquery.min.js",
