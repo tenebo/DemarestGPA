@@ -30,7 +30,7 @@ $(document).ready(function () {
   const semester = ["Forensic Science", "Robotics Engineering"];
 
   // Get all the data inside the gradebook table
-  const grades_and_classes = $("table[class='list']")[0].rows;
+  const grades_and_classes = $("table[class='list']")[0].rows || [];
 
   let grades = [];
   let courses = [];
