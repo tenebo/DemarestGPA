@@ -1,0 +1,24 @@
+{
+  "name": "demarestgpa",
+  "version": "1.0.0",
+  "description": "Demarest GPA Calculator",
+  "main": "popup.js",
+  "devDependencies": {
+    "tailwindcss": "^3.2.4"
+  },
+  "scripts": {
+    "start": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
+    "build": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css",
+    "publish": "rm app.zip && git archive -o app.zip HEAD"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tenebo/DemarestGPA.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tenebo/DemarestGPA/issues"
+  },
+  "homepage": "https://github.com/tenebo/DemarestGPA#readme"
+}

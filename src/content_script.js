@@ -30,7 +30,7 @@ $(document).ready(function () {
   const semester = ["Forensic Science", "Robotics Engineering"];
 
   // Get all the data inside the gradebook table
-  const grades_and_classes = $("table[class='list']")[0].rows || [];
+  const grades_and_classes = $("table[class='list']")[0]?.rows || [];
 
   let grades = [];
   let courses = [];
@@ -108,9 +108,7 @@ $(document).ready(function () {
   let loading = '<div id="loading" class="loader">Loading...</div>';
   $('p[class="sectionTitle"]').append($(loading));
 
-  let html = '<h1 id="gpa" style="color:#ffffff;background-color:#019BC6;height:10px;text-align:center;line-height:100px;width:50px;border-radius:25px;margin:0 auto;margin-top:10px;  box-shadow: 2px 2px 4px rgba(0, 0, 0, .4);"> GPA: ';
-  html += gpa.toFixed(2);
-  html += "</h1>";
+  let html = `<h1 id="gpa" style="color:#ffffff;background-color:#019BC6;height:10px;text-align:center;line-height:100px;width:50px;border-radius:25px;margin:0 auto;margin-top:10px;  box-shadow: 2px 2px 4px rgba(0, 0, 0, .4);"> GPA: ${gpa.toFixed(2)}</h1>`;
   setTimeout(function () {
     $("#loading").remove();
     $('p[class="sectionTitle"]').append($(html));
