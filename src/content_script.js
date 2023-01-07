@@ -1,16 +1,16 @@
 /*jshint esversion: 6 */
 $(document).ready(function () {
   const gpaRegular = {
-    "A+": "4.3", "A": "4.0", "A-": "3.7", "B+": "3.3", "B": "3.0", "B-": "2.7",
-    "C+": "2.3", "C": "2.0", "C-": "1.7", "D+": "1.3", "D": "1.0", "D-": "0.7", "F": "0.0"
+    "A+": 4.3, "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7,
+    "C+": 2.3, "C": 2.0, "C-": 1.7, "D+": 1.3, "D": 1.0, "D-": 0.7, "F": 0.0
   };
   const gpaHonors = {
-    "A+": "4.8", "A": "4.5", "A-": "4.2", "B+": "3.8", "B": "3.5", "B-": "3.2",
-    "C+": "2.8", "C": "2.5", "C-": "2.2", "D+": "1.8", "D": "1.5", "D-": "1.2", "F": "0.0"
+    "A+": 4.8, "A": 4.5, "A-": 4.2, "B+": 3.8, "B": 3.5, "B-": 3.2,
+    "C+": 2.8, "C": 2.5, "C-": 2.2, "D+": 1.8, "D": 1.5, "D-": 1.2, "F": 0.0
   };
   const gpaAp = {
-    "A+": "5.3", "A": "5.0", "A-": "4.7", "B+": "4.3", "B": "4.0", "B-": "3.7",
-    "C+": "3.3", "C": "3.0", "C-": "2.7", "D+": "2.3", "D": "2.0", "D-": "1.7", "F": "0.0"
+    "A+": 5.3, "A": 5.0, "A-": 4.7, "B+": 4.3, "B": 4.0, "B-": 3.7,
+    "C+": 3.3, "C": 3.0, "C-": 2.7, "D+": 2.3, "D": 2.0, "D-": 1.7, "F": 0.0
   };
 
   const halfYear = ["Business Law", "Computer Applications", "Entrepreneurship", "Fashion Marketing", "Financial Literacy",
@@ -42,6 +42,8 @@ $(document).ready(function () {
   // A valid course must not be a non gpa class i.e gym, and have a valid grade
   const ifValid = (name, grade) => {
     return (
+      typeof name == "string" &&
+      typeof grade == "string" &&
       name.indexOf("Physical Ed") == -1 &&
       name.indexOf("Health") == -1 &&
       grade.indexOf("No Grades") == -1 &&
@@ -53,7 +55,7 @@ $(document).ready(function () {
   // Filter out through all courses for those that are valid
   for (let i = 1; i < grades_and_classes.length; i++) {
     let name = grades_and_classes[i].cells[0].innerText;
-    let grade = grades_and_classes[i].cells[2].innerText.replace(/[^A-F+-]/g, '');
+    let grade = grades_and_classes[i].cells[2]?.innerText.replace(/[^A-F+-]/g, '');
     if (ifValid(name, grade)) {
       courses.push(name);
       grades.push(grade);
@@ -63,23 +65,23 @@ $(document).ready(function () {
   // Filter classes by credits
   for (let i = 0; i < courses.length; i += 1) {
     if (halfYear.indexOf(courses[i]) > -1) {
-      credits.push("2.5");
+      credits.push(2.5);
       total_credits += 2.5;
       console.log(courses[i]);
     }
     else if (labs.indexOf(courses[i]) > -1) {
-      credits.push("6");
+      credits.push(6);
       total_credits += 6;
       console.log(courses[i]);
     }
     else if (semester.indexOf(courses[i]) > -1) {
-      credits.push("3");
+      credits.push(3);
       total_credits += 3;
       console.log(courses[i]);
 
     }
     else {
-      credits.push("5");
+      credits.push(5);
       total_credits += 5;
       console.log(courses[i]);
     }

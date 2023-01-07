@@ -1,6 +1,6 @@
 {
   "name": "demarestgpa",
-  "version": "1.0.0",
+  "version": "1.2",
   "description": "Demarest GPA Calculator",
   "main": "popup.js",
   "devDependencies": {
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/tenebo/DemarestGPA.git"
   },
-  "author": "",
+  "author": "Inpyo Lee",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/tenebo/DemarestGPA/issues"
