@@ -1,6 +1,6 @@
 {
   "name": "demarestgpa",
-  "version": "1.2",
+  "version": "1.2.0",
   "description": "Demarest GPA Calculator",
   "main": "popup.js",
   "devDependencies": {
@@ -9,7 +9,7 @@
   "scripts": {
     "start": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
     "build": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css",
-    "publish": "rm app.zip && git archive -o app.zip HEAD"
+    "publish": "git archive -o app.zip HEAD"
   },
   "repository": {
     "type": "git",
