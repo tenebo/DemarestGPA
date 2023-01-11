@@ -8,21 +8,6 @@
     "activeTab",
     "scripting"
   ],
-  "content_scripts": [
-    {
-      "matches": [
-        "https://*.genesisedu.net/*tab3=weeklysummary*"
-      ],
-      "js": [
-        "./src/jquery.min.js",
-        "./src/content_script.js"
-      ],
-      "css": [
-        "./styles/loader.css"
-      ],
-      "run_at": "document_end"
-    }
-  ],
   "action": {
     "default_icon": "./images/icon.png",
     "default_title": "Demarest GPA",
