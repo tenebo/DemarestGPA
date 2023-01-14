@@ -1,104 +1,13 @@
 $(document).ready(function () {
-
-  let styles = `<style>.wrapper {
-    width: 200px;
-    height: 60px;
-    position: relative;
-    margin: 0 auto;
-    top-margin: 40px;
-    z-index: 1;
-  }
-  
-  .circle {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgb(1, 155, 198);
-    left: 15%;
-    transform-origin: 50%;
-    animation: circle7124 .5s alternate infinite ease;
-  }
-  
-  @keyframes circle7124 {
-    0% {
-      top: 60px;
-      height: 5px;
-      border-radius: 50px 50px 25px 25px;
-      transform: scaleX(1.7);
-    }
-    
-    40% {
-      height: 20px;
-      border-radius: 50%;
-      transform: scaleX(1);
-    }
-    
-    100% {
-      top: 0%;
-    }
-  }
-  
-  .circle:nth-child(2) {
-    left: 45%;
-    animation-delay: .2s;
-  }
-  
-  .circle:nth-child(3) {
-    left: auto;
-    right: 15%;
-    animation-delay: .3s;
-  }
-  
-  .shadow {
-    width: 20px;
-    height: 4px;
-    border-radius: 50%;
-    background-color: rgba(0,0,0,0.9);
-    position: absolute;
-    top: 62px;
-    transform-origin: 50%;
-    z-index: -1;
-    left: 15%;
-    filter: blur(1px);
-    animation: shadow046 .5s alternate infinite ease;
-  }
-  
-  @keyframes shadow046 {
-    0% {
-      transform: scaleX(1.5);
-    }
-    
-    40% {
-      transform: scaleX(1);
-      opacity: .7;
-    }
-    
-    100% {
-      transform: scaleX(.2);
-      opacity: .4;
-    }
-  }
-  
-  .shadow:nth-child(4) {
-    left: 45%;
-    animation-delay: .2s
-  }
-  
-  .shadow:nth-child(5) {
-    left: auto;
-    right: 15%;
-    animation-delay: .3s;
-  }</style>`;
-  $("p[class='sectionTitle']").append(styles);
-  let loading = `<div id="loading" class="wrapper">
-  <div class="circle"></div>
-  <div class="circle"></div>
-  <div class="circle"></div>
-  <div class="shadow"></div>
-  <div class="shadow"></div>
-  <div class="shadow"></div>
-</div>`;
+  let grades = [];
+  let courses = [];
+  let credits = [];
+  let gpas = [];
+  let unweightedgpas = [];
+  let total_credits = 0;
+  let qualityPoints = 0;
+  let toggle = true;
+  let calculating = false;
 
   // GPAs for each class type
   const GradeLetters = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F"];
@@ -131,19 +40,8 @@ $(document).ready(function () {
 
   const semester = ["Forensic Science", "Robotics Engineering"];
 
-  // Get all the data inside the gradebook table
-  const ogTable = $("table[class='list']");
-  const grades_and_classes = ogTable[0].rows;
-  let grades = [];
-  let courses = [];
-  let credits = [];
-  let gpas = [];
-  let unweightedgpas = [];
-  let total_credits = 0;
-  let qualityPoints = 0;
-  let toggle = true;
-  let calculating = false;
-
+  let loadingStyles = `<style id="loadingStyles"> .lds-ellipsis { margin: 0 auto; top-margin: 40px; position: relative; width: 80px; height: 100px; z-index: 1; } .lds-ellipsis div { position: absolute; top: 33px; width: 13px; height: 13px; border-radius: 50%; background-color: #1565c0; animation-timing-function: cubic-bezier(0, 1, 1, 0); } .lds-ellipsis div:nth-child(1) { left: 8px; animation: lds-ellipsis1 0.6s infinite; } .lds-ellipsis div:nth-child(2) { left: 8px; animation: lds-ellipsis2 0.6s infinite; } .lds-ellipsis div:nth-child(3) { left: 32px; animation: lds-ellipsis2 0.6s infinite; } .lds-ellipsis div:nth-child(4) { left: 56px; animation: lds-ellipsis3 0.6s infinite; } @keyframes lds-ellipsis1 { 0% { transform: scale(0); } 100% { transform: scale(1); } } @keyframes lds-ellipsis3 { 0% { transform: scale(1); } 100% { transform: scale(0); } } @keyframes lds-ellipsis2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } } </style>`;
+  let loading = `<div id="loading" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
 
   // A valid course must not be a non gpa class i.e gym, and have a valid grade
   const ifValid = (name, grade) => {
@@ -157,20 +55,6 @@ $(document).ready(function () {
       grade.length > 0
     );
   };
-
-  // Filter out through all courses for those that are valid
-  for (let i = 1; i < grades_and_classes.length; i++) {
-    let name = grades_and_classes[i].cells[0].innerText;
-    if (!grades_and_classes[i].cells[2]) return;
-    let grade = grades_and_classes[i].cells[2].innerText.replace(
-      /[^A-F+-]/g,
-      ""
-    );
-    if (ifValid(name, grade)) {
-      courses.push(name);
-      grades.push(grade);
-    }
-  }
 
   // FUNCTIONS
   function raiseLetterGrade(letterGrade) {
@@ -230,9 +114,8 @@ $(document).ready(function () {
     }
     qualityPoints = 0;
     for (let i = 0; i < gpas.length; i++) {
-      qualityPoints += parseFloat(gpas[i]) * parseFloat(credits[i]);
+      qualityPoints += gpas[i] * credits[i];
     }
-    createCustomTable();
 
     // Calculate Unweighted GPA, just use the regular gpa table
     for (let i = 0; i < gpas.length; i++) {
@@ -243,31 +126,12 @@ $(document).ready(function () {
     let unweightedgpa = 0;
     let unweightedQualityPoints = 0;
     for (let i = 0; i < unweightedgpas.length; i++) {
-      unweightedQualityPoints += parseFloat(unweightedgpas[i]) * credits[i];
+      unweightedQualityPoints += unweightedgpas[i] * credits[i];
     }
     unweightedgpa = unweightedQualityPoints / total_credits;
 
-    $("#gpa").remove();
-    let html =
-      '<div id="gpa" style="height: 200px; opacity: 1; width: 200px; display: flex; justify-content: center; align-items: center; margin: auto;"><p class="gpa" style="color:#ffffff;background-color:#019BC6;text-align:center; width:150px;border-radius:25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px;"> Weighted <br />';
-    html += gpa.toFixed(2);
-    html += "</p>";
-    html += `<p class="gpa" style="color:#ffffff;background-color:#019BC6;text-align:center; width:150px;border-radius:25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px;"> Unweighted <br />`;
-    html += unweightedgpa.toFixed(2);
-    html += "</p></div>";
-    setTimeout(function () {
-      $("#loading").remove();
-      $('p[class="sectionTitle"]').append($(html));
-
-      let gpaDiv = $("#gpa");
-      gpaDiv.animate({ height: "100px", opacity: "0.6" }, "slow");
-      gpaDiv.animate({ width: "250px", opacity: "1" }, "fast");
-      calculating = false;
-
-      $("#gpa").click(function () {
-        activatePro();
-      });
-    }, 1500);
+    createCustomTable();
+    displayGpa(gpa,unweightedgpa);
   }
 
   function createCustomTable() {
@@ -280,9 +144,9 @@ $(document).ready(function () {
         <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%;">
           <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; width: 100%;">
             <p style="font-size: 16px; font-weight: 500; color: #000; margin: 10px; width: 80px;">${courses[i]}</p>
-            <button id="${i}" class="upGpa hover:bg-green-200" style="background-color: #019BC6; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">+</button>
+            <button id="${i}" class="upGpa hover:bg-green-200" style="background-color: #1565c0; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">+</button>
             <p style="font-size: 16px; font-weight: 500; color: #000; margin: 10px; width: 80px;">${grades[i]} | ${gpas[i]}</p>  
-            <button id="${i}" class="downGpa hover:bg-green-200" style="background-color: #019BC6; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">-</button>
+            <button id="${i}" class="downGpa hover:bg-green-200" style="background-color: #1565c0; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">-</button>
           </div>
         </div>
       </div>
@@ -291,6 +155,12 @@ $(document).ready(function () {
 
     customTable += "</div>";
     $("td[colspan='2']").append(customTable);
+    $(".upGpa").click(function (event) {
+      reCalculateGpa(event.target.id, "up");
+    });
+    $(".downGpa").click(function (event) {
+      reCalculateGpa(event.target.id, "down");
+    });
   }
 
   // Get the gpas that would be higher grades than the current grade
@@ -300,12 +170,6 @@ $(document).ready(function () {
       $("table[class='list']").remove();
 
       createCustomTable();
-      $(document).on("click", ".upGpa", function (event) {
-        reCalculateGpa(event.target.id, "up");
-      });
-      $(document).on("click", ".downGpa", function (event) {
-        reCalculateGpa(event.target.id, "down");
-      });
       toggle = false;
     } else if (!toggle) {
       $("div[id='customTable']").remove();
@@ -314,12 +178,7 @@ $(document).ready(function () {
     }
   }
 
-  function calculateGpa() {
-    if (calculating) return;
-    calculating = true;
-    $("#gpa").remove();
-    $("p[class='sectionTitle']").append(loading);
-    // Filter classes by credits
+  function calculateGpaNum(){
     for (let i = 0; i < courses.length; i += 1) {
       if (halfYear.indexOf(courses[i]) > -1) {
         credits.push(2.5);
@@ -350,38 +209,40 @@ $(document).ready(function () {
       qualityPoints += gpas[i] * credits[i];
     }
     let gpa = qualityPoints / total_credits;
-    if (isNaN(gpa)) {
-      $("#loading").remove();
-      return;
-    }
-    $("#gpa").remove();
 
-    let html = "";
-    
     for (let i = 0; i < gpas.length; i++) {
       unweightedgpas[i] = gpaRegular[grades[i]];
     }
     let unweightedgpa = 0;
     let unweightedQualityPoints = 0;
     for (let i = 0; i < unweightedgpas.length; i++) {
-      unweightedQualityPoints += parseFloat(unweightedgpas[i]) * credits[i];
+      unweightedQualityPoints += unweightedgpas[i] * credits[i];
     }
     unweightedgpa = unweightedQualityPoints / total_credits;
-    html +=
-      '<div id="gpa" style="height: 200px; opacity: 1; width: 200px; display: flex; justify-content: center; align-items: center; margin: auto;"><p class="gpa" style="color:#ffffff;background-color:#019BC6;text-align:center; width:150px;border-radius:25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px;"> Weighted <br />';
-    html += gpa.toFixed(2);
-    html += "</p>";
-    html += `<p class="gpa" style="color:#ffffff;background-color:#019BC6;text-align:center; width:150px;border-radius:25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px;"> Unweighted <br />`;
-    html += unweightedgpa.toFixed(2);
-    html += "</p></div>";
+    return [gpa,unweightedgpa]
+  }
+
+  function displayGpa(gpa, unweightedgpa) {
+    if (!calculating) return;
+
+    if (isNaN(gpa)) {
+      $("#loading").remove();
+      return;
+    }
+
+    let html = `<div id="gpa" 
+      style="height: 100px; opacity: 1; width: 200px; display: flex; justify-content: center; align-items: center; margin: auto;">
+      <p class="gpa" style="color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:25px 0px 0px 25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-right-style: solid;"> Weighted <br />${gpa.toFixed(2)}</p>
+      <p class="gpa" style="color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:0px 25px 25px 0px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-left-style: solid;"> Unweighted <br />${unweightedgpa.toFixed(2)}</p>
+    <div>`;
 
     setTimeout(function () {
       $("#loading").remove();
       $('p[class="sectionTitle"]').append($(html));
 
       let gpaDiv = $("#gpa");
-      gpaDiv.animate({ height: "100px", opacity: "0.6" }, "slow");
-      gpaDiv.animate({ width: "250px", opacity: "1" }, "fast");
+      gpaDiv.css({ opacity: "0.6" })
+      gpaDiv.animate({ width: "250px", opacity: "1" }, 400);
       calculating = false;
 
       $("#gpa").click(function () {
@@ -389,5 +250,37 @@ $(document).ready(function () {
       });
     }, 1500);
   }
-  calculateGpa();
+
+    // Get all the data inside the gradebook table
+  const ogTable = $("table[class='list']");
+  if(!ogTable.length) return;
+  const grades_and_classes = ogTable[0].rows || [];
+
+  if (!$("#loadingStyles").length) $("p[class='sectionTitle']").append(loadingStyles);
+
+
+  // Filter out through all courses for those that are valid
+  for (let i = 1; i < grades_and_classes.length; i++) {
+    let name = grades_and_classes[i].cells[0].innerText;
+    if (!grades_and_classes[i].cells[2]) return;
+    let grade = grades_and_classes[i].cells[2].innerText.replace(
+      /[^A-F+-]/g,
+      ""
+    );
+    if (ifValid(name, grade)) {
+      courses.push(name);
+      grades.push(grade);
+    }
+  }
+  
+  function initalCalculate(){
+
+    if (calculating) return;
+    calculating = true;
+    $("#gpa").remove();
+    $("p[class='sectionTitle']").append(loading);
+    let [gpa,unweightedgpa] = calculateGpaNum();
+    displayGpa(gpa,unweightedgpa);
+  }
+  if (!$("#loading").length) initalCalculate();
 });
