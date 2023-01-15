@@ -1,9 +1,9 @@
 $(document).ready(function () {
-  let grades = [];
-  let courses = [];
-  let credits = [];
-  let gpas = [];
-  let unweightedgpas = [];
+  let grades:string[] = [];
+  let courses:string[] = [];
+  let credits:number[] = [];
+  let gpas:number[] = [];
+  let unweightedgpas:number[] = [];
   let total_credits = 0;
   let qualityPoints = 0;
   let toggle = true;
@@ -11,15 +11,15 @@ $(document).ready(function () {
 
   // GPAs for each class type
   const GradeLetters = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F"];
-  const gpaRegular = {
+  const gpaRegular:Record<string,number> = {
     "A+": 4.3, "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7,
     "C+": 2.3, "C": 2.0, "C-": 1.7, "D+": 1.3, "D": 1.0, "D-": 0.7, "F": 0.0
   };
-  const gpaHonors = {
+  const gpaHonors:Record<string,number>  = {
     "A+": 4.8, "A": 4.5, "A-": 4.2, "B+": 3.8, "B": 3.5, "B-": 3.2,
     "C+": 2.8, "C": 2.5, "C-": 2.2, "D+": 1.8, "D": 1.5, "D-": 1.2, "F": 0.0
   };
-  const gpaAp = {
+  const gpaAp:Record<string,number>  = {
     "A+": 5.3, "A": 5.0, "A-": 4.7, "B+": 4.3, "B": 4.0, "B-": 3.7,
     "C+": 3.3, "C": 3.0, "C-": 2.7, "D+": 2.3, "D": 2.0, "D-": 1.7, "F": 0.0
   };
@@ -44,7 +44,7 @@ $(document).ready(function () {
   let loading = `<div id="loading" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
 
   // A valid course must not be a non gpa class i.e gym, and have a valid grade
-  const ifValid = (name, grade) => {
+  const ifValid = (name:string, grade:string) => {
     return (
       typeof name == "string" &&
       typeof grade == "string" &&
@@ -57,7 +57,7 @@ $(document).ready(function () {
   };
 
   // FUNCTIONS
-  function raiseLetterGrade(letterGrade) {
+  function raiseLetterGrade(letterGrade:string) {
     for (let i=0;GradeLetters.length>i;i++){
       if(GradeLetters[i]==letterGrade){
         if (i <= 0){
@@ -69,7 +69,7 @@ $(document).ready(function () {
     return "A+"
   }
 
-  function lowerLetterGrade(letterGrade) {
+  function lowerLetterGrade(letterGrade:string) {
     for (let i=0;GradeLetters.length>i;i++){
       if(GradeLetters[i]==letterGrade){
         if (i >= GradeLetters.length-1){
@@ -81,7 +81,7 @@ $(document).ready(function () {
     return "F"
   }
 
-  function reCalculateGpa(id, direction) {
+  function reCalculateGpa(id:number, direction:string) {
     if (calculating) return;
     calculating = true;
     $("#gpa").remove();
@@ -156,10 +156,10 @@ $(document).ready(function () {
     customTable += "</div>";
     $("td[colspan='2']").append(customTable);
     $(".upGpa").click(function (event) {
-      reCalculateGpa(event.target.id, "up");
+      reCalculateGpa(parseInt(event.target.id), "up");
     });
     $(".downGpa").click(function (event) {
-      reCalculateGpa(event.target.id, "down");
+      reCalculateGpa(parseInt(event.target.id), "down");
     });
   }
 
@@ -222,7 +222,7 @@ $(document).ready(function () {
     return [gpa,unweightedgpa]
   }
 
-  function displayGpa(gpa, unweightedgpa) {
+  function displayGpa(gpa:number, unweightedgpa:number) {
     if (!calculating) return;
 
     if (isNaN(gpa)) {
@@ -252,9 +252,9 @@ $(document).ready(function () {
   }
 
     // Get all the data inside the gradebook table
-  const ogTable = $("table[class='list']");
+  const ogTable:JQuery<HTMLTableElement> = $("table[class='list']");
   if(!ogTable.length) return;
-  const grades_and_classes = ogTable[0].rows || [];
+  const grades_and_classes = ogTable[0]?.rows || [];
 
   if (!$("#loadingStyles").length) $("p[class='sectionTitle']").append(loadingStyles);
 
