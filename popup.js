@@ -5,14 +5,7 @@ chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
-        files: ['./src/jquery.min.js']
-      }, function(){
-        chrome.scripting.executeScript(
-          {
-            target: { tabId: tab.id },
-            files: ["./src/content_script.js"]
-          }
-        );
+        files: ['./build/content_script.js']
       }
     );
   });
