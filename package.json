@@ -1,15 +1,18 @@
 {
   "name": "demarestgpa",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "Demarest GPA Calculator",
   "main": "popup.js",
   "devDependencies": {
     "tailwindcss": "^3.2.4"
   },
   "scripts": {
-    "start": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
-    "build": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css",
-    "publish": "git archive -o app.zip HEAD"
+    "start": "nim js--out:build/content_script.js src/content_script.nim",
+    "build": "nim js -d:release --out:build/content_script.js src/content_script.nim",
+    "tw:start": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
+    "tw:build": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css",
+    "prepublish": "rm app.zip",
+    "publish": "zip app.zip manifest.json build/* images/* styles/* popup.html popup.js"
   },
   "repository": {
     "type": "git",
