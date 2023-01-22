@@ -9,8 +9,8 @@
   "scripts": {
     "start": "nim js--out:build/content_script.js src/content_script.nim",
     "build": "nim js -d:release --out:build/content_script.js src/content_script.nim",
-    "tw:start": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
-    "tw:build": "npx tailwindcss -i ./styles/input.css -o ./styles/output.css",
+    "tw:start": "bunx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
+    "tw:build": "bunx tailwindcss -i ./styles/input.css -o ./styles/output.css",
     "prepublish": "rm app.zip",
     "publish": "zip app.zip manifest.json build/* images/* styles/* popup.html popup.js"
   },
