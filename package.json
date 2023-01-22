@@ -4,7 +4,8 @@
   "description": "Demarest GPA Calculator",
   "main": "popup.js",
   "devDependencies": {
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.4",
+    "bun-types": "^0.5.0"
   },
   "scripts": {
     "start": "nim js--out:build/content_script.js src/content_script.nim",
