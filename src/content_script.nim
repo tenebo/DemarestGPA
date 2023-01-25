@@ -58,49 +58,71 @@ const labs = ["Biology", "Biology Enriched", "Biology Honors", "Ap Biology",
 
 const semester = ["Forensic Science", "Robotics Engineering"]
 
+proc ifValid(name: string, grade: string): bool =
+    return not name.contains("Physical Ed") and
+            not name.contains("Health") and
+            gradeLetters.contains(grade)
+
+proc raiseLetterGrade(letterGrade: string): string =
+    for i in 0..gradeLetters.len-1:
+        if gradeLetters[i] == letterGrade:
+            if i <= 0:
+                return "A+"
+            return gradeLetters[i-1]
+    return "A+"
+
+proc lowerLetterGrade(letterGrade: string): string =
+    for i in 0..gradeLetters.len-1:
+        if gradeLetters[i] == letterGrade:
+            if i >= gradeLetters.len-1:
+                return "F"
+            return gradeLetters[i+1]
+    return "F"
+
 proc main() =
-    let loadingStyles = cstring""".lds-ellipsis { margin: 0 auto; top-margin: 40px; position: relative; width: 80px; height: 100px; z-index: 1; } .lds-ellipsis div { position: absolute; top: 33px; width: 13px; height: 13px; border-radius: 50%; background-color: #1565c0; animation-timing-function: cubic-bezier(0, 1, 1, 0); } .lds-ellipsis div:nth-child(1) { left: 8px; animation: lds-ellipsis1 0.6s infinite; } .lds-ellipsis div:nth-child(2) { left: 8px; animation: lds-ellipsis2 0.6s infinite; } .lds-ellipsis div:nth-child(3) { left: 32px; animation: lds-ellipsis2 0.6s infinite; } .lds-ellipsis div:nth-child(4) { left: 56px; animation: lds-ellipsis3 0.6s infinite; } @keyframes lds-ellipsis1 { 0% { transform: scale(0); } 100% { transform: scale(1); } } @keyframes lds-ellipsis3 { 0% { transform: scale(1); } 100% { transform: scale(0); } } @keyframes lds-ellipsis2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }"""
-    let loading = cstring"""<div id="loading" class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>"""
+    let loadingStyles = cstring""".demarest-gpa-loading { margin: 0 auto; top-margin: 40px; position: relative; width: 80px; height: 100px; z-index: 1; } .demarest-gpa-loading div { position: absolute; top: 33px; width: 13px; height: 13px; border-radius: 50%; background-color: #1565c0; animation-timing-function: cubic-bezier(0, 1, 1, 0); } .demarest-gpa-loading div:nth-child(1) { left: 8px; animation: demarest-gpa-loading1 0.6s infinite; } .demarest-gpa-loading div:nth-child(2) { left: 8px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(3) { left: 32px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(4) { left: 56px; animation: demarest-gpa-loading3 0.6s infinite; } @keyframes demarest-gpa-loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } } @keyframes demarest-gpa-loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } } @keyframes demarest-gpa-loading2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
+        .demarest-gpa-selection {
+            display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; padding: 10px; border-bottom: 1px solid #e0e0e0;
+        }
+        .demarest-gpa-selection div {
+            display: flex; flex-direction: row; width: 100%;
+        }
+        .demarest-gpa-selection div:nth-child(1) {
+            justify-content: space-between; align-items: center;
+        }
+        .demarest-gpa-selection div:nth-child(2) {
+            justify-content: center; align-items: flex-start;
+        }
+        .demarest-gpa-change-button {
+            background-color: #1565c0; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;
+        }
+        .demarest-gpa-table-text {
+            font-size: 16px; font-weight: 500; color: #000; margin: 10px; width: 80px;
+        }
+    """
+    let loadingDOM = document.createElement("div")
+    loadingDOM.setAttribute("id", "loading")
+    loadingDOM.setAttribute("class", "demarest-gpa-loading")
+    loadingDOM.appendChild(document.createElement("div"))
+    loadingDOM.appendChild(document.createElement("div"))
+    loadingDOM.appendChild(document.createElement("div"))
+    loadingDOM.appendChild(document.createElement("div"))
 
     var grades: seq[string] = newSeq[string]()
     var courses: seq[string] = newSeq[string]()
-    # var credits = newSeq[float64]()
     var gpas: seq[float64] = newSeq[float64]()
-    # var unweightedgpas = newSeq[float64]()
-    # var total_credits:float64 = 0
-    # var qualityPoints:float64 = 0
     var toggle = true
     var calculating = false
     var ogTable: Node
 
-    let prsr = newDomParser()
-
-    proc ifValid(name: string, grade: string): bool =
-        return not name.contains("Physical Ed") and
-                not name.contains("Health") and
-                gradeLetters.contains(grade)
-
-    proc raiseLetterGrade(letterGrade: string): string =
-        for i in 0..gradeLetters.len-1:
-            if gradeLetters[i] == letterGrade:
-                if i <= 0:
-                    return "A+"
-                return gradeLetters[i-1]
-        return "A+"
-
-    proc lowerLetterGrade(letterGrade: string): string =
-        for i in 0..gradeLetters.len-1:
-            if gradeLetters[i] == letterGrade:
-                if i >= gradeLetters.len-1:
-                    return "F"
-                return gradeLetters[i+1]
-        return "F"
+    proc displayGpa(gpa, unweightedgpa: float64)
+    proc activateToggle(e: Event)
+    proc createTable()
 
     proc calculateGpaNum(ccourses, cgrades: seq[string]): (float64, float64) =
         var credits: seq[float64] = newSeq[float64]()
         var total_credits: float64 = 0.0
 
-        # var gpas:seq[float64] = newSeq[float64]()
         var qualityPoints: float64 = 0
 
         var unweightedgpas = newSeq[float64]()
@@ -140,80 +162,89 @@ proc main() =
         unweightedgpa = unweightedQualityPoints / total_credits
         return (gpa, unweightedgpa)
 
-    proc reCalcGpa(current: int, direction: string): (float64, float64) =
+    proc reCalcGpa(e: Event) =
+        if (calculating):
+            return
+        calculating = true
+        if not document.querySelector("#gpa").isNil():
+            document.querySelector("#gpa").remove()
+        document.querySelector("p[class='sectionTitle']").appendChild(
+                loadingDOM)
+        let direction = $(e.target.value)
+        let current = parseInt($(e.target.id))
         if direction == "up":
             grades[current] = raiseLetterGrade(grades[current])
         elif direction == "down":
             grades[current] = lowerLetterGrade(grades[current])
-        # var (gpa, unweightedgpa) = calculateGpaNum(courses,grades)
-        return calculateGpaNum(courses, grades)
-
-    proc displayGpa(gpa, unweightedgpa: float64)
-    proc activateToggle(e: Event)
+        var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
+        displayGpa(gpa, unweightedgpa)
+        createTable()
 
     proc createTable() =
-        if not document.querySelector("div[id='customTable']").isNil():
-            document.querySelector("div[id='customTable']").remove()
+        if not document.querySelector("div[id='demarestGpaCustomTable']").isNil():
+            document.querySelector("div[id='demarestGpaCustomTable']").remove()
         var table = document.createElement("div")
-        table.id = cstring"customTable"
+        table.id = cstring"demarestGpaCustomTable"
         table.style.display = cstring"flex"
         table.style.flexDirection = cstring"column"
         table.style.justifyContent = cstring"center"
         table.style.width = cstring"100%"
 
         for i in 0..courses.len-1:
-            let selction = fmt"""
-            <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; padding: 10px; border-bottom: 1px solid #e0e0e0;">
-                <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%;">
-                <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; width: 100%;">
-                    <p style="font-size: 16px; font-weight: 500; color: #000; margin: 10px; width: 80px;">{courses[i]}</p>
-                    <button id="{i}" class="upGpa hover:bg-green-200" style="background-color: #1565c0; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">+</button>
-                    <p style="font-size: 16px; font-weight: 500; color: #000; margin: 10px; width: 80px;">{grades[i]} | {gpas[i]}</p>  
-                    <button id="{i}" class="downGpa hover:bg-green-200" style="background-color: #1565c0; width: 30px; border: 1px solid #ffffff; border-radius: 5px; padding: 5px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin: 10px;">-</button>
-                </div>
-                </div>
-            </div>
-            """
-            table.appendChild(prsr.parseFromString(selction.cstring,
-                    "text/html".cstring).documentElement)
+            let selection = document.createElement("div")
+            selection.setAttribute("class", "demarest-gpa-selection")
+            let selection1 = document.createElement("div")
+            let selection2 = document.createElement("div")
+
+            let title = document.createElement("p")
+            title.setAttribute("class", "demarest-gpa-table-text")
+            title.innerText = cstring(courses[i])
+            selection2.appendChild(title)
+
+            let upButton = document.createElement("button")
+            upButton.setAttribute("id", cstring($(i)))
+            upButton.setAttribute("class", "demarest-gpa-change-button")
+            upButton.innerText = "+"
+            upButton.value = "up"
+            upButton.onclick = reCalcGpa
+            selection2.appendChild(upButton)
+
+            let gpaState = document.createElement("p")
+            gpaState.setAttribute("class", "demarest-gpa-table-text")
+            gpaState.innerText = fmt"{grades[i]} | {gpas[i]}".cstring
+            selection2.appendChild(gpaState)
+
+            let downButton = document.createElement("button")
+            downButton.setAttribute("id", cstring($(i)))
+            downButton.setAttribute("class", "demarest-gpa-change-button")
+            downButton.innerText = "-"
+            downButton.value = "down"
+            downButton.onclick = reCalcGpa
+
+
+            selection2.appendChild(downButton)
+            selection1.appendChild(selection2)
+            selection.appendChild(selection1)
+            table.appendChild(selection)
         document.querySelector("td[colspan='2']").appendChild(table)
-        for i in document.querySelectorAll(".upGpa"):
-            i.onclick = proc (e: Event) =
-                if (calculating):
-                    return
-                calculating = true
-                if not document.querySelector("#gpa").isNil():
-                    document.querySelector("#gpa").remove()
-                let loadingDOM = prsr.parseFromString(loading,
-                        "text/html".cstring)
-                document.querySelector("p[class='sectionTitle']").appendChild(
-                        loadingDOM.documentElement)
-                var (gpa, unweightedgpa) = reCalcGpa(parseInt($(e.target.id)), "up")
-                displayGpa(gpa, unweightedgpa)
-                createTable()
-        for i in document.querySelectorAll(".downGpa"):
-            i.onclick = proc (e: Event) =
-                if (calculating):
-                    return
-                calculating = true
-                if not document.querySelector("#gpa").isNil():
-                    document.querySelector("#gpa").remove()
-                let loadingDOM = prsr.parseFromString(loading,
-                        "text/html".cstring)
-                document.querySelector("p[class='sectionTitle']").appendChild(
-                        loadingDOM.documentElement)
-                var (gpa, unweightedgpa) = reCalcGpa(parseInt($(e.target.id)), "down")
-                displayGpa(gpa, unweightedgpa)
-                createTable()
+
 
     proc displayGpa(gpa, unweightedgpa: float64) =
         proc doAnimate() =
-            let html = fmt"""<div id="gpa" style="height: 100px; opacity: 1; width: 200px; display: flex; justify-content: center; align-items: center; margin: auto;">
-                <p class="gpa" style="color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:25px 0px 0px 25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-right-style: solid;"> Weighted <br />{round(gpa,2)}</p>
-                <p class="gpa" style="color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:0px 25px 25px 0px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-left-style: solid;"> Unweighted <br />{round(unweightedgpa,2)}</p>
-            <div>"""
-            let gpaDOM = prsr.parseFromString(html.cstring,
-                    "text/html".cstring).documentElement
+            let gpaDOM = document.createElement("div")
+            gpaDOM.setAttribute("id", "gpa")
+            gpaDOM.setAttribute("style", "height: 100px; opacity: 1; width: 200px; display: flex; justify-content: center; align-items: center; margin: auto;")
+            let left = document.createElement("p")
+            left.setAttribute("class", "gpa")
+            left.setAttribute("style", "color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:25px 0px 0px 25px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-right-style: solid;")
+            left.innerHTML = fmt"Weighted<br />{round(gpa,2)}".cstring
+            let right = document.createElement("p")
+            right.setAttribute("class", "gpa")
+            right.setAttribute("style", "color:#ffffff;background-color:#1565c0;text-align:center; width:150px;border-radius:0px 25px 25px 0px;margin:0 auto;margin-top:10px; height:50px; box-shadow: 2px 2px 4px rgba(0, 0, 0, .4); line-height:25px; border-color: rgb(187, 187, 187);border-left-style: solid;")
+            right.innerHTML = fmt"Unweighted<br />{round(unweightedgpa,2)}".cstring
+            gpaDOM.appendChild(left)
+            gpaDOM.appendChild(right)
+
             if not document.querySelector("#loading").isNil():
                 document.querySelector("#loading").remove()
             document.querySelector("p[class='sectionTitle']").appendChild(gpaDOM)
@@ -244,8 +275,9 @@ proc main() =
             createTable()
             toggle = false
         else:
-            if not document.querySelector("div[id='customTable']").isNil():
-                document.querySelector("div[id='customTable']").remove()
+            if not document.querySelector(
+                    "div[id='demarestGpaCustomTable']").isNil():
+                document.querySelector("div[id='demarestGpaCustomTable']").remove()
             document.querySelector("td[colspan='2']").appendChild(ogTable)
             toggle = true
 
@@ -255,9 +287,8 @@ proc main() =
         calculating = true
         if not document.querySelector("#gpa").isNil():
             document.querySelector("#gpa").remove()
-        let loadingDOM = prsr.parseFromString(loading, "text/html".cstring)
         document.querySelector("p[class='sectionTitle']").appendChild(
-                loadingDOM.documentElement)
+                loadingDOM)
         var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
         displayGpa(gpa, unweightedgpa)
 
