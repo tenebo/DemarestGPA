@@ -19,16 +19,13 @@ proc regex*(reg: cstring, opt: cstring): JsObject {.importcpp: "new RegExp(#,#)"
 
 const gradeLetters = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+",
         "D", "D-", "F"]
-const gpaRegular = {"A+": 4.3, "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0,
-        "B-": 2.7,
-"C+": 2.3, "C": 2.0, "C-": 1.7, "D+": 1.3, "D": 1.0, "D-": 0.7, "F": 0.0
+const gpaRegular = {"A+": 4.33, "A": 4.0, "A-": 3.67, "B+": 3.33, "B": 3.0,
+        "B-": 2.67,
+"C+": 2.33, "C": 2.0, "C-": 1.67, "D+": 1.33, "D": 1.0, "D-": 0.67, "F": 0.0
 }.toTable
-const gpaHonors = {"A+": 4.8, "A": 4.5, "A-": 4.2, "B+": 3.8, "B": 3.5,
-        "B-": 3.2,
-"C+": 2.8, "C": 2.5, "C-": 2.2, "D+": 1.8, "D": 1.5, "D-": 1.2, "F": 0.0
-}.toTable
-const gpaAp = {"A+": 5.3, "A": 5.0, "A-": 4.7, "B+": 4.3, "B": 4.0, "B-": 3.7,
-"C+": 3.3, "C": 3.0, "C-": 2.7, "D+": 2.3, "D": 2.0, "D-": 1.7, "F": 0.0
+
+const gpaWeighted = {
+    "Enriched": 0.25, "Honors": 1.0, "AP": 1.25
 }.toTable
 
 const halfYear = ["Business Law", "Computer Applications", "Entrepreneurship",
@@ -80,7 +77,7 @@ proc lowerLetterGrade(letterGrade: string): string =
     return "F"
 
 proc main() =
-    let loadingStyles = cstring""".demarest-gpa-loading { margin: 0 auto; top-margin: 40px; position: relative; width: 80px; height: 100px; z-index: 1; } .demarest-gpa-loading div { position: absolute; top: 33px; width: 13px; height: 13px; border-radius: 50%; background-color: #1565c0; animation-timing-function: cubic-bezier(0, 1, 1, 0); } .demarest-gpa-loading div:nth-child(1) { left: 8px; animation: demarest-gpa-loading1 0.6s infinite; } .demarest-gpa-loading div:nth-child(2) { left: 8px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(3) { left: 32px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(4) { left: 56px; animation: demarest-gpa-loading3 0.6s infinite; } @keyframes demarest-gpa-loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } } @keyframes demarest-gpa-loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } } @keyframes demarest-gpa-loading2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
+    const loadingStyles = cstring""".demarest-gpa-loading { margin: 0 auto; top-margin: 40px; position: relative; width: 80px; height: 100px; z-index: 1; } .demarest-gpa-loading div { position: absolute; top: 33px; width: 13px; height: 13px; border-radius: 50%; background-color: #1565c0; animation-timing-function: cubic-bezier(0, 1, 1, 0); } .demarest-gpa-loading div:nth-child(1) { left: 8px; animation: demarest-gpa-loading1 0.6s infinite; } .demarest-gpa-loading div:nth-child(2) { left: 8px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(3) { left: 32px; animation: demarest-gpa-loading2 0.6s infinite; } .demarest-gpa-loading div:nth-child(4) { left: 56px; animation: demarest-gpa-loading3 0.6s infinite; } @keyframes demarest-gpa-loading1 { 0% { transform: scale(0); } 100% { transform: scale(1); } } @keyframes demarest-gpa-loading3 { 0% { transform: scale(1); } 100% { transform: scale(0); } } @keyframes demarest-gpa-loading2 { 0% { transform: translate(0, 0); } 100% { transform: translate(24px, 0); } }
         .demarest-gpa-selection {
             display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; padding: 10px; border-bottom: 1px solid #e0e0e0;
         }
@@ -145,9 +142,11 @@ proc main() =
         gpas = @[]
         for i in 0..ccourses.len-1:
             if ccourses[i].contains("AP"):
-                gpas.add(gpaAp[cgrades[i]])
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["AP"])
             elif ccourses[i].contains("Honors"):
-                gpas.add(gpaHonors[cgrades[i]])
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["Honors"])
+            elif ccourses[i].contains("(E)"):
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["Enriched"])
             else:
                 gpas.add(gpaRegular[cgrades[i]])
         for i in 0..ccourses.len-1:
@@ -185,10 +184,7 @@ proc main() =
             document.querySelector("div[id='demarestGpaCustomTable']").remove()
         var table = document.createElement("div")
         table.id = cstring"demarestGpaCustomTable"
-        table.style.display = cstring"flex"
-        table.style.flexDirection = cstring"column"
-        table.style.justifyContent = cstring"center"
-        table.style.width = cstring"100%"
+        table.setAttribute("style", "display:flex; flex-direction:column; justify-content:center; width:100%")
 
         for i in 0..courses.len-1:
             let selection = document.createElement("div")
@@ -315,6 +311,8 @@ proc main() =
         if ifValid(name, grade):
             grades.add(grade)
             courses.add(name)
+    when not defined(release):
+        echo courses, grades
     if courses.len == 0 or grades.len == 0:
         return
 

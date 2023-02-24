@@ -8,9 +8,8 @@
     "bun-types": "^0.5.0"
   },
   "scripts": {
-    "start": "nim js --out:build/content_script.js src/content_script.nim",
     "build": "nim js -d:release --out:build/content_script.js src/content_script.nim",
-    "dev": "nodemon --watch ./src --exec nim js -d:release --out:build/content_script.js src/content_script.nim",
+    "dev": "nodemon --watch ./src --exec nim js --out:build/content_script.js src/content_script.nim",
     "pretty": "nimpretty src/content_script.nim",
     "tw:start": "bunx tailwindcss -i ./styles/input.css -o ./styles/output.css --watch",
     "tw:build": "bunx tailwindcss -i ./styles/input.css -o ./styles/output.css",

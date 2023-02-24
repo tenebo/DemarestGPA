@@ -575,6 +575,10 @@ video {
   line-height: 1.5rem;
 }
 
+.italic {
+  font-style: italic;
+}
+
 .leading-none {
   line-height: 1;
 }
