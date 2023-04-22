@@ -15,6 +15,8 @@ proc `onfinish=`*(n: Node; x: proc) {.importcpp: "#.onfinish = #", nodecl.}
 
 proc replace*(n: cstring, regex: JsObject,
         opt: cstring): cstring {.importcpp: "#.replace(#,#)", nodecl.}
+proc replace*(n: cstring, regex: cstring,
+        opt: cstring): cstring {.importcpp: "#.replace(#,#)", nodecl.}
 proc regex*(reg: cstring, opt: cstring): JsObject {.importcpp: "new RegExp(#,#)", constructor.}
 
 const gradeLetters = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+",
@@ -304,7 +306,9 @@ proc main() =
         if grades_and_classes[i].cells.len < 3 or grades_and_classes[i].cells[
                 2].isNil():
             return
-        var grade = $(grades_and_classes[i].cells[2].innerText.replace(
+        var mgrade =  grades_and_classes[i].cells[2].innerText
+        # echo mgrade.replace(cstring"*PROJECTED",cstring"")
+        var grade = $(mgrade.replace(cstring"*PROJECTED",cstring"").replace(
             regex(cstring"[^A-F+-]", cstring"g"),
             cstring""
         ))

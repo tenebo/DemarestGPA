@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Demarest GPA Calculator",
   "description": "This extension calculates the GPA for Northern Valley Regional High School at Demarest Students",
-  "version": "2.0",
+  "version": "3.1",
   "author": "Inpyo Lee",
   "permissions": [
     "activeTab",
