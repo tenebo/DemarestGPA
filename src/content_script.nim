@@ -110,6 +110,8 @@ proc main() =
     var grades: seq[string] = newSeq[string]()
     var courses: seq[string] = newSeq[string]()
     var gpas: seq[float64] = newSeq[float64]()
+    var use_credits = false;
+    var mcredits = newSeq[string]()
     var toggle = true
     var calculating = false
     var ogTable: Node
@@ -117,6 +119,41 @@ proc main() =
     proc displayGpa(gpa, unweightedgpa: float64)
     proc activateToggle(e: Event)
     proc createTable()
+
+    proc calculateGpaNumWithCustomCredits(ccourses, cgrades, ccredits: seq[
+            string]): (float64, float64) =
+        var credits: seq[float64] = newSeq[float64]()
+        var total_credits: float64 = 0
+        for i in 0..ccredits.len-1:
+            var parsed = parseFloat(ccredits[i])
+            credits.add(parsed)
+            total_credits += parsed
+        var qualityPoints: float64 = 0
+        var unweightedgpas = newSeq[float64]()
+        var unweightedgpa = 0.0
+        var unweightedQualityPoints = 0.0
+
+        gpas = @[]
+        for i in 0..ccourses.len-1:
+            if ccourses[i].contains("AP"):
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["AP"])
+            elif ccourses[i].contains("Honors"):
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["Honors"])
+            elif ccourses[i].contains("(E)"):
+                gpas.add(gpaRegular[cgrades[i]]+gpaWeighted["Enriched"])
+            else:
+                gpas.add(gpaRegular[cgrades[i]])
+        for i in 0..ccourses.len-1:
+            qualityPoints += gpas[i] * credits[i]
+        var gpa = qualityPoints / total_credits
+        for i in 0..cgrades.len-1:
+            unweightedgpas.add(gpaRegular[cgrades[i]])
+
+        for i in 0..cgrades.len-1:
+            unweightedQualityPoints += unweightedgpas[i] * credits[i]
+
+        unweightedgpa = unweightedQualityPoints / total_credits
+        return (gpa, unweightedgpa)
 
     proc calculateGpaNum(ccourses, cgrades: seq[string]): (float64, float64) =
         var credits: seq[float64] = newSeq[float64]()
@@ -130,17 +167,17 @@ proc main() =
 
         for course in ccourses:
             if (halfYear.contains(course)):
-                credits.add(2.5)
-                total_credits += 2.5
+                credits.add(0.5)
+                total_credits += 0.5
             elif (labs.contains(course)):
-                credits.add(6);
-                total_credits += 6;
+                credits.add(1.17);
+                total_credits += 1.17;
             elif(semester.contains(course)):
-                credits.add(3);
-                total_credits += 3;
+                credits.add(0.6);
+                total_credits += 0.6;
             else:
-                credits.add(5);
-                total_credits += 5;
+                credits.add(1);
+                total_credits += 1;
         gpas = @[]
         for i in 0..ccourses.len-1:
             if ccourses[i].contains("AP"):
@@ -177,8 +214,13 @@ proc main() =
             grades[current] = raiseLetterGrade(grades[current])
         elif direction == "down":
             grades[current] = lowerLetterGrade(grades[current])
-        var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
-        displayGpa(gpa, unweightedgpa)
+        if use_credits:
+            var (gpa, unweightedgpa) = calculateGpaNumWithCustomCredits(courses,
+                    grades, mcredits)
+            displayGpa(gpa, unweightedgpa)
+        else:
+            var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
+            displayGpa(gpa, unweightedgpa)
         createTable()
 
     proc createTable() =
@@ -287,8 +329,13 @@ proc main() =
             document.querySelector("#gpa").remove()
         document.querySelector("p[class='sectionTitle']").appendChild(
                 loadingDOM)
-        var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
-        displayGpa(gpa, unweightedgpa)
+        if use_credits:
+            var (gpa, unweightedgpa) = calculateGpaNumWithCustomCredits(courses,
+                    grades, mcredits)
+            displayGpa(gpa, unweightedgpa)
+        else:
+            var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
+            displayGpa(gpa, unweightedgpa)
 
     if document.querySelector("table[class='list']").isNil():
         return
@@ -302,21 +349,31 @@ proc main() =
         styledom.textContent = loadingStyles
         document.querySelector("p[class='sectionTitle']").appendChild(styledom)
     for i in 1..grades_and_classes.len-1:
-        var name = $(grades_and_classes[i].cells[0].innerText)
         if grades_and_classes[i].cells.len < 3 or grades_and_classes[i].cells[
                 2].isNil():
-            return
-        var mgrade =  grades_and_classes[i].cells[2].innerText
+            break
+        var name = ""
+        var mgrade = cstring""
+        if grades_and_classes[i].cells.len == 7:
+            use_credits = true
+            name = $(grades_and_classes[i].cells[2].innerText)
+            mgrade = grades_and_classes[i].cells[4].innerText
+            mcredits.add($(grades_and_classes[i].cells[6].innerText))
+        else:
+            name = $(grades_and_classes[i].cells[0].innerText)
+            mgrade = grades_and_classes[i].cells[2].innerText
         # echo mgrade.replace(cstring"*PROJECTED",cstring"")
-        var grade = $(mgrade.replace(cstring"*PROJECTED",cstring"").replace(
+        var grade = $(mgrade.replace(cstring"*PROJECTED", cstring"").replace(
             regex(cstring"[^A-F+-]", cstring"g"),
             cstring""
         ))
-        if ifValid(name, grade):
+        if ifValid(name, grade) or (use_credits and gradeLetters.contains(grade)):
             grades.add(grade)
             courses.add(name)
     when not defined(release):
-        echo courses, grades
+        if use_credits:
+            echo mcredits, mcredits.len
+        echo courses, grades, courses.len
     if courses.len == 0 or grades.len == 0:
         return
 
