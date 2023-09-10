@@ -354,11 +354,15 @@ proc main() =
             break
         var name = ""
         var mgrade = cstring""
-        if grades_and_classes[i].cells.len == 7:
+        if grades_and_classes[i].cells.len == 4:
             use_credits = true
-            name = $(grades_and_classes[i].cells[2].innerText)
-            mgrade = grades_and_classes[i].cells[4].innerText
-            mcredits.add($(grades_and_classes[i].cells[6].innerText))
+            name = $(grades_and_classes[i].cells[1].children[1].innerText)
+            mgrade = grades_and_classes[i].cells[2].innerText
+            var earned_credit = $(grades_and_classes[i].cells[3].children[1].innerText.replace(
+                regex(cstring"[^\d.]+", cstring"g"),
+                cstring""
+            ))
+            mcredits.add(earned_credit)
         else:
             name = $(grades_and_classes[i].cells[0].innerText)
             mgrade = grades_and_classes[i].cells[2].innerText
