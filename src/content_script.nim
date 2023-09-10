@@ -6,6 +6,7 @@ import std/strformat
 import std/math
 
 proc rows*(n: Node): seq[Node] {.importcpp: "#.rows", nodecl.}
+proc children*(n: Node): seq[Node] {.importcpp: "#.children", nodecl.}
 proc cells*(n: Node): seq[Node] {.importcpp: "#.cells", nodecl.}
 
 
@@ -57,6 +58,7 @@ const labs = ["Biology", "Biology Enriched", "Biology Honors", "Ap Biology",
 
 const semester = ["Forensic Science", "Robotics Engineering"]
 
+const GRADE_TABLE_DOM = "div[class='itemContainer']"
 proc ifValid(name: string, grade: string): bool =
     return not name.contains("Physical Ed") and
             not name.contains("Health") and
@@ -310,8 +312,8 @@ proc main() =
 
     proc activateToggle(e: Event) =
         if toggle:
-            if not document.querySelector("table[class='list']").isNil():
-                document.querySelector("table[class='list']").remove()
+            if not document.querySelector(GRADE_TABLE_DOM).isNil():
+                document.querySelector(GRADE_TABLE_DOM).remove()
             createTable()
             toggle = false
         else:
@@ -337,10 +339,11 @@ proc main() =
             var (gpa, unweightedgpa) = calculateGpaNum(courses, grades)
             displayGpa(gpa, unweightedgpa)
 
-    if document.querySelector("table[class='list']").isNil():
+    var grade_table = document.querySelector(GRADE_TABLE_DOM)
+    if grade_table.isNil():
         return
-    ogTable = document.querySelector("table[class='list']").cloneNode(true)
-    var grades_and_classes = document.querySelector("table[class='list']").rows
+    ogTable = grade_table.cloneNode(true)
+    var grades_and_classes = grade_table.children
     if document.querySelector("p[class='sectionTitle']").isNil():
         return
     if document.querySelector("#loadingStyles").isNil():
@@ -348,24 +351,25 @@ proc main() =
         styledom.id = "loadingStyles"
         styledom.textContent = loadingStyles
         document.querySelector("p[class='sectionTitle']").appendChild(styledom)
+    echo grades_and_classes.len
     for i in 1..grades_and_classes.len-1:
-        if grades_and_classes[i].cells.len < 3 or grades_and_classes[i].cells[
-                2].isNil():
-            break
+        # if grades_and_classes[i].children.len < 3 or grades_and_classes[i].children[
+        #         2].isNil():
+        #     break
         var name = ""
         var mgrade = cstring""
-        if grades_and_classes[i].cells.len == 4:
-            use_credits = true
-            name = $(grades_and_classes[i].cells[1].children[1].innerText)
-            mgrade = grades_and_classes[i].cells[2].innerText
-            var earned_credit = $(grades_and_classes[i].cells[3].children[1].innerText.replace(
-                regex(cstring"[^\d.]+", cstring"g"),
-                cstring""
-            ))
-            mcredits.add(earned_credit)
-        else:
-            name = $(grades_and_classes[i].cells[0].innerText)
-            mgrade = grades_and_classes[i].cells[2].innerText
+        # if grades_and_classes[i].cells.len == 4:
+        #     use_credits = true
+        #     name = $(grades_and_classes[i].cells[1].children[1].innerText)
+        #     mgrade = grades_and_classes[i].cells[2].innerText
+        #     var earned_credit = $(grades_and_classes[i].cells[3].children[1].innerText.replace(
+        #         regex(cstring"[^\d.]+", cstring"g"),
+        #         cstring""
+        #     ))
+        #     mcredits.add(earned_credit)
+        # else:
+        name = $(grades_and_classes[i].children[1].innerText)
+        mgrade = grades_and_classes[i].children[0].innerText
         # echo mgrade.replace(cstring"*PROJECTED",cstring"")
         var grade = $(mgrade.replace(cstring"*PROJECTED", cstring"").replace(
             regex(cstring"[^A-F+-]", cstring"g"),
